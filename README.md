@@ -46,4 +46,4 @@ History :
 Orinal build PH_Event V1.0 P.HENRY  24/02/2020  https://github.com/net234/PH_Events
 Various version for Arduino 8Bits  under BetaEvents   https://github.com/net234/BetaEvents
 Various version for Arduino 32Bits  under BetaEvents32   https://github.com/net234/BetaEvents32
-Full rebuild    for ESP8266    https://github.com/net234/BetaEventsESP   (betaEvensESP V4.0) 25/04/2024
+Full rebuild    for ESP8266    https://github.com/net234/BetaEventsESP   (betaEvents V4.0) 25/04/2024
