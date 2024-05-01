@@ -255,7 +255,9 @@ public:
   bool get(const bool sleep = true);
   void handle();
 
-  uint8_t getPercentCPU() {return _percentCPU; };
+  uint8_t getPercentCPU() {
+    return _percentCPU;
+  };
 
   bool push(event& aEvent);
   bool push(const uint8_t code, const int8_t ext = 0, const int iParam = 0);
@@ -264,6 +266,7 @@ public:
   bool delayedPushMillis(const uint32_t delayMillisec, const uint8_t code, const uint8_t ext = 0, const int iParam = 0);
   bool delayedPushSeconds(const uint32_t delaySeconds, const uint8_t code, const uint8_t ext = 0, const int iParam = 0);
   bool forceDelayedPushMillis(const uint32_t delayMillisec, const uint8_t code, const uint8_t ext = 0, const int iParam = 0, bool repeat = false);
+  //  bool forceDelayedPushMillis(const uint32_t delayMillisec, const uint8_t code, const uint8_t ext = 0, const float fParam = 0, bool repeat = false);
   bool forceDelayedPushSeconds(const uint32_t delaySeconds, const uint8_t code, const uint8_t ext = 0, const int iParam = 0, bool repeat = false);
   bool repeatedPushMillis(const uint32_t delayMillisec, const uint8_t code, const uint8_t ext = 0, const int iParam = 0);
   bool repeatedPushSeconds(const uint32_t delaySeconds, const uint8_t code, const uint8_t ext = 0, const int iParam = 0);

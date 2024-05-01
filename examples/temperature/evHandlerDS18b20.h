@@ -8,40 +8,43 @@
 //
 // The DallasTemperature library can do all this work for you!
 // https://github.com/milesburton/Arduino-Temperature-Control-Library
+// Attention une oullup de 4,7K est necessaire (sauf sur D4 la led fait office de pull up)  
 #pragma once
 #include <Arduino.h>
 
 
+#define MAXDS18x20 250  // no specific limit (254 max) in this vestion but about 1 sec to get one
+// technicaly 30 should be a limit
 
+
+
+enum tevxDs : uint8_t { evxDsStart,
+                        evxDsSearch,
+                        evxDsRead,
+                        evxDsLast,
+                        evxDsError };
+
+#include <EventsManagerESP.h>
 #include <OneWire.h>
-
-//#define MAXDS18x20 20  // nombre maxi de sondes pas de vrai limite mais attention a la numerotation des evenements
-// chaque sonde a code code event evDS18x20 + le N° de la sonde (de 1 a MAXDS18x20)
-
-typedef enum { evxDsStart,
-               evxDsSearch,
-               evxDsRead,
-               evxDsError } tevxDs;
-
-
 
 class evHandlerDS18b20 : private evHandler, OneWire {
 public:
-  evHandlerDS18b20(const uint32_t aDelai, const uint8_t aPinNumber = D4)
-    : OneWire(aPinNumber), pinNumber(aPinNumber), delai(aDelai) {};
+  evHandlerDS18b20(const uint8_t evCode, const uint8_t aPinNumber, const uint16_t aDelai = 10L*1000)
+    : OneWire(aPinNumber), evCode(evCode), pinNumber(aPinNumber), delai(aDelai){};  //
   virtual void begin() override;
   virtual void handle() override;
   float getTemperature() {
     return (float)raw / 16.0;
     ;
   }
+  
   uint8_t getNumberOfDevices();
   uint8_t current;
   uint8_t error;
 
 private:
 
-  
+  uint8_t evCode;
   uint8_t pinNumber;
   uint32_t delai;
   uint8_t addr[8];

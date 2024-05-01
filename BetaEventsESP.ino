@@ -55,7 +55,7 @@ Full rebuild    for ESP8266    https://github.com/net234/BetaEventsESP   (betaEv
 // Name of this application
 #ifndef APP_NAME
 // version de prod
-#define APP_NAME "betaEventsESP V4.0A"
+#define APP_NAME "betaEventsESP V4.0B"
 #endif
 
 

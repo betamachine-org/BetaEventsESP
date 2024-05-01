@@ -58,8 +58,10 @@ enum tevCore : uint8_t {
   evPostInit,
   evInChar,
   evInString,
-  // evDth20 = 20,
-  // evDs18b20,
+  evHARD = 20,  //??
+   //evDth20,
+   //evDs18b20,
+   evBNODES = 50,
   // evOta = 50,   // a migrer dans bnOdes tools
   // evWifi,
   // evTagHisto,

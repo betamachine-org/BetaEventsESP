@@ -28,7 +28,7 @@
 
 // Name of this application
 #define APP_NAME "temperature V1.0"
-
+#include "ESP8266.h"
 
 
 
@@ -49,15 +49,20 @@
 
 // Utilisation d'enum class pour une meilleure encapsulation et un typage fort
 enum tevUser : uint8_t {
-  evBP0 = 100,   // standard event for bp0 on D4
+  evBP0 = 100,  // standard event for bp0 on D4
   evLed0,       // standard event for led0 on D4
- 
+  evDs18b20,
 };
-//}
-
-
 
 #include <BetaEventsESP.h>  // this will create an evManager called Events with a push buton BP0 and a Led LED0
+
+
+
+#include "evHandlerDS18b20.h"
+
+evHandlerDS18b20 myDs18b20(evDs18b20, ONEWIRE_PIN);  // on D4 by default
+
+
 
 
 void setup() {
@@ -65,7 +70,8 @@ void setup() {
 
   Serial.println(F("\r\n\n" APP_NAME));
 
-  T_println("Bonjour...");
+  DV_println(myDs18b20.getNumberOfDevices())
+    T_println("Bonjour...");
 }
 
 bool sleep = true;  //Allow to disable sleep time with a "S" command line
@@ -85,12 +91,7 @@ void loop() {
 
 
 
-    case ev1Hz:
-      {
-        //DV_print(second());
-        //DV_println(helperFreeRam());
-      }
-      break;
+
 
     case evBP0:  //
       switch (Events.ext) {
@@ -111,6 +112,25 @@ void loop() {
       }
       break;
 
+    case evDs18b20:
+      if (Events.ext == evxDsRead) {
+        TV_print("Sonde", myDs18b20.current);
+        TV_println("Temp", myDs18b20.getTemperature());
+      }
+      if (Events.ext ==  evxDsLast){
+        if (ONEWIRE_PIN == LED0_PIN) {
+          pinMode(LED0_PIN, OUTPUT);
+          digitalWrite(LED0_PIN, !Led0.isOn());
+        }
+      }
+      if (Events.ext == evxDsError) {
+        TV_print("Sonde", myDs18b20.current);
+        V_println(myDs18b20.error);
+      }
+
+      break;
+
+
     case evInChar:
       //DV_println(Events.cParam);
       switch (Events.cParam) {
@@ -124,7 +144,7 @@ void loop() {
 
 
     case evInString:
- 
+
       if (Events.strPtrParam->equals("LEDON")) {
         Led0.setOn(true);
         T_println("LED ON");

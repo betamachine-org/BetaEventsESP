@@ -1,4 +1,3 @@
-#include "EventsManagerESP.h"
 
 
 // Version evenementielle de l'exemple de la lib standard OneDrive
@@ -11,6 +10,8 @@
 
 
 #include "evHandlerDS18b20.h"
+#include <EventsManagerESP.h>
+
 #define MAXDS18b20 99
 
 
@@ -24,34 +25,38 @@ void evHandlerDS18b20::begin() {
   //
   //Events.forceDelayedPushMillis(250, evDs18b20, evxDsSearch, true); // next read in 250ms
   //getNumberOfDevices();
-  
+
   //reset();
   //delay(300);
-  Events.repeatedPushMillis(delai, evDs18b20); // relecture dans le delai imposé  evxDsStart est imposé
+
+  OneWire::begin(pinNumber);
+  //V_println(pinNumber);
+  Events.repeatedPushMillis(delai, evCode);  // relecture dans le delai imposé  evxDsStart est imposé
   //reset_search();
 };
 
 // gestion des evenements
 void evHandlerDS18b20::handle() {
-  if (Events.code != evDs18b20) return;
+  if (Events.code != evCode) return;
   if (Events.ext == evxDsStart) {
     reset();
     reset_search();
-    Events.forceDelayedPushMillis(500, evDs18b20, evxDsSearch);
-  //    delay(250);
-  current = 0;
+    Events.forceDelayedPushMillis(500, evCode, evxDsSearch);
+    //    delay(250);
+    current = 0;
     return;
   }
   if (Events.ext == evxDsSearch) {
     //DTV_println("evxDsSearch",current);
-    if ( !search(addr)) {
+    if (!search(addr)) {
       //Serial.println("No more addresses.");
       if (current == 0) {
-        error = 1; // aucune sondes
-        Events.push( evDs18b20, evxDsError);
+        error = 1;  // aucune sondes
+        Events.push(evCode, evxDsError);
       }
       //derniere sonde lue
-      if (pinNumber == D4) pinMode(pinNumber,OUTPUT);  // give back output mode
+      Events.push(evCode, evxDsLast);
+
       return;
     }
     //   Serial.print("ROM =");
@@ -62,7 +67,7 @@ void evHandlerDS18b20::handle() {
     if (OneWire::crc8(addr, 7) != addr[7]) {
       //  Serial.println("CRC is not valid!");
       error = 2;  // crc error
-      Events.push( evDs18b20, evxDsError);
+      Events.push(evCode, evxDsError);
       return;
     }
     current++;
@@ -82,28 +87,28 @@ void evHandlerDS18b20::handle() {
         break;
       default:
         //Serial.println("Device is not a DS18x20 family device.");
-        error = 3; // bad device
-        Events.push( evDs18b20, evxDsError);
+        error = 3;  // bad device
+        Events.push(evCode, evxDsError);
         return;
     }
     error = 0;
     reset();
     select(addr);
-    write(0x44, 1);        // start conversion, with parasite power on at the end
+    write(0x44,0);  // start conversion, with NO parasite power on at the end
     //delay(1000);
-    Events.forceDelayedPushMillis(800, evDs18b20, evxDsRead, true); // get converted value in 1000ms ( > 750ms)
+    Events.forceDelayedPushMillis(800, evCode, evxDsRead);  // get converted value in 1000ms ( > 750ms)
     return;
   }
   if (Events.ext == evxDsRead) {
-    //uint8_t present = 
+    //uint8_t present =
     reset();
     select(addr);
-    write(0xBE);         // Read Scratchpad
+    write(0xBE);  // Read Scratchpad
     byte data[9];
     //    Serial.print("  Data = ");
     //    Serial.print(present, HEX);
     //    Serial.print(" ");
-    for ( uint8_t i = 0; i < 9; i++) {           // we need 9 bytes
+    for (uint8_t i = 0; i < 9; i++) {  // we need 9 bytes
       data[i] = read();
       //      Serial.print(data[i], HEX);
       //      Serial.print(" ");
@@ -111,8 +116,8 @@ void evHandlerDS18b20::handle() {
     //    Serial.print(" CRC=");
     //    Serial.print(OneWire::crc8(data, 8), HEX);
     //    Serial.println();
-    error = (OneWire::crc8(data, 8) == data[8]) ? 0 : 2; // erreur crc non bloquante
-    if (error) Events.push( evDs18b20, evxDsError);
+    error = (OneWire::crc8(data, 8) == data[8]) ? 0 : 2;  // erreur crc non bloquante
+    if (error) Events.push(evCode, evxDsError);
 
     // Convert the data to actual temperature
     // because the result is a 16 bit signed integer, it should
@@ -120,7 +125,7 @@ void evHandlerDS18b20::handle() {
     // even when compiled on a 32 bit processor.
     raw = (data[1] << 8) | data[0];
     if (type_s) {
-      raw = raw << 3; // 9 bit resolution default
+      raw = raw << 3;  // 9 bit resolution default
       if (data[7] == 0x10) {
         // "count remain" gives full 12 bit resolution
         raw = (raw & 0xFFF0) + 12 - data[6];
@@ -128,15 +133,15 @@ void evHandlerDS18b20::handle() {
     } else {
       byte cfg = (data[4] & 0x60);
       // at lower res, the low bits are undefined, so let's zero them
-      if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
-      else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
-      else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
+      if (cfg == 0x00) raw = raw & ~7;       // 9 bit resolution, 93.75 ms
+      else if (cfg == 0x20) raw = raw & ~3;  // 10 bit res, 187.5 ms
+      else if (cfg == 0x40) raw = raw & ~1;  // 11 bit res, 375 ms
       //// default is 12 bit resolution, 750 ms conversion time
     }
 
-    //if (current < MAXDS18b20) Events.push(evDs18b20+current, 100L * raw / 16);
-
-    Events.forceDelayedPushMillis(100, evDs18b20, evxDsSearch, true); // recherche de la sonde suivante
+    if (current < MAXDS18b20) {
+      Events.forceDelayedPushMillis(100, evCode, evxDsSearch);  // recherche de la sonde suivante
+    }
     return;
   }
   return;
