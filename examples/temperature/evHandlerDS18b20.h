@@ -29,7 +29,7 @@ enum tevxDs : uint8_t { evxDsStart,
 
 class evHandlerDS18b20 : private evHandler, OneWire {
 public:
-  evHandlerDS18b20(const uint8_t evCode, const uint8_t aPinNumber, const uint16_t aDelai = 10L*1000)
+  evHandlerDS18b20(const uint8_t evCode, const uint8_t aPinNumber, const uint32_t aDelai = 10L*1000)
     : OneWire(aPinNumber), evCode(evCode), pinNumber(aPinNumber), delai(aDelai){};  //
   virtual void begin() override;
   virtual void handle() override;
