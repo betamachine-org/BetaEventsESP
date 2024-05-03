@@ -293,7 +293,7 @@ bool EvManager::delayedPushMillis(const uint32_t delayMillisec, const uint8_t co
 // remove all pending events with same code then add the deleayed event in milliseconds (max over 100 years)
 bool EvManager::delayedPushSeconds(const uint32_t delaySeconds, const uint8_t code, const uint8_t ext, const int iParam) {
   while (removeDelayEvent(code)) {};
-  return (forceDelayedPushSeconds(delaySeconds * 1000, code, ext, iParam));
+  return (forceDelayedPushSeconds(delaySeconds, code, ext, iParam));
 }
 
 
