@@ -1,3 +1,4 @@
+#include "TimeLib.h"
 //Helpers
 // generic helpers out of evManager library
 #pragma once
@@ -43,7 +44,7 @@
 
 
 String niceDisplayDelay(time_t aDelay);
-String niceDisplayTime(const time_t time, bool full);
+String niceDisplayTime(const time_t time, const bool full = true,const uint8_t precision = timeSet);
 String Digit2_str(const uint16_t value);
 
 #define  helperReset()   ESP.restart()

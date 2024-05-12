@@ -82,7 +82,7 @@ String niceDisplayDelay(time_t aDelay) {
   return txt;
 }
 
-String niceDisplayTime(const time_t time, bool full) {
+String niceDisplayTime(const time_t time, const bool full,const uint8_t precision) {
 
   String txt;
   // we supose that time < NOT_A_DATE_YEAR is not a date
@@ -98,8 +98,7 @@ String niceDisplayTime(const time_t time, bool full) {
     txt += Digit2_str(month(time));
     txt += '/';
     txt += year(time);
-  }
-
+  
   static String date;
   if (!full && txt == date) {
     txt = "";
@@ -107,10 +106,18 @@ String niceDisplayTime(const time_t time, bool full) {
     date = txt;
     txt += " ";
   }
+
+  }
+
+  //notification de l'eventuelle precision dans l'affichage
+  char aSep = ':';
+  if (precision == timeNotSet) aSep='!';
+  if (precision == timeNeedsSync) aSep='.';
+  
   txt += Digit2_str(hour(time));
-  txt += ':';
+  txt += aSep;
   txt += Digit2_str(minute(time));
-  txt += ':';
+  txt += aSep;
   txt += Digit2_str(second(time));
   return txt;
 }
