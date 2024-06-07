@@ -50,12 +50,14 @@ Various version for Arduino 8Bits  under BetaEvents   https://github.com/net234/
 Various version for Arduino 32Bits  under BetaEvents32   https://github.com/net234/BetaEvents32
 Full rebuild    for ESP8266    https://github.com/net234/BetaEventsESP   (betaEvensESP V4.0) 25/04/2024
 
+07/06/24   V4.0C ajout de multi dans evHandlers 
+
 
 */
 // Name of this application
 #ifndef APP_NAME
 // version de prod
-#define APP_NAME "betaEventsESP V4.0B"
+#define APP_NAME "betaEventsESP V4.0C"
 #endif
 
 
@@ -95,9 +97,9 @@ void setup() {
   //Serial.begin(115200);
   //Serial.println(F("\r\n\n" APP_NAME));
   // delay(5000);
-  Serial.println(F("\r\n\n PRE INIT"));
+  //Serial.println(F("\r\n\n PRE INIT"));
   Events.begin();
-  Serial.println(F(" PRE INIT END"));
+  //Serial.println(F(" PRE INIT END"));
   Serial.println(F("\r\n\n" APP_NAME));
 
   T_println("Bonjour...");
@@ -152,18 +154,18 @@ void loop() {
       //DV_println(Events.ext);
       switch (Events.ext) {
         case evxOn:
-          Serial.println("BP0 ON");
+          TV_println("BP0 ON, multi", BP0.multi)
           Led0.setMillisec(500);
           break;
         case evxLongOn:
-          Serial.println("BP0 LONG ON");
+          TV_println("BP0 LONG ON, multi", BP0.multi);
           break;
         case evxOff:
-          Serial.println("BP0 OFF");
+          TV_println("BP0 OFF, multi",BP0.multi);
           Led0.setMillisec(5000);
           break;
         case evxLongOff:
-          Serial.println("BP0 LONG OFF");
+          T_println("BP0 LONG OFF");
           break;
       }
       break;

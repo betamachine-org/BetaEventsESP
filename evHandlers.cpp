@@ -60,7 +60,7 @@ evHandler::evHandler() {
  ***********************************************************/
 
 evHandlerOutput::evHandlerOutput(const uint8_t aEventCode, const uint8_t aPinNumber, const bool aStateON)
-  : pinNumber(aPinNumber), stateON(aStateON), evCode(aEventCode) {};
+  : pinNumber(aPinNumber), stateON(aStateON), evCode(aEventCode){};
 
 void evHandlerOutput::begin() {
   pinMode(pinNumber, OUTPUT);
@@ -137,7 +137,7 @@ void evHandlerLed::setOn(const bool status) {
 void evHandlerLed::setMillisec(const uint16_t aMillisecondes, const uint8_t aPercent) {
   millisecondes = max(aMillisecondes, (uint16_t)2);
   percent = aPercent;
-   Events.delayedPushMillis(0, evCode, evxBlink);
+  Events.delayedPushMillis(0, evCode, evxBlink);
 }
 
 void evHandlerLed::setFrequence(const uint8_t frequence, const uint8_t percent) {
@@ -158,25 +158,35 @@ void evHandlerLed::setFrequence(const uint8_t frequence, const uint8_t percent) 
 
 
 evHandlerButton::evHandlerButton(const uint8_t aEventCode, const uint8_t aPinNumber, const uint16_t aLongDelay)
-  : evCode(aEventCode), pinNumber(aPinNumber), longDelay(aLongDelay) {};
+  : evCode(aEventCode), pinNumber(aPinNumber), longDelay(aLongDelay){};
 
 void evHandlerButton::begin() {
   pinMode(pinNumber, INPUT_PULLUP);
+  multi = 0;
 };
 
 void evHandlerButton::handle() {
   if (Events.code == ev10Hz) {
-    if (state != (digitalRead(pinNumber) == LOW)) {  // changement d'etat BP0
-      state = !state;
-      if (state) {
-        Events.push(evCode, evxOn);
-              Events.delayedPushMillis(longDelay, evCode, evxLongOn);  // arme un event BP long On
-      } else {
-        Events.push(evCode, evxOff);
-            Events.delayedPushMillis(longDelay, evCode, evxLongOff);  // arme un event BP long Off
-      }
+
+    if (state == (digitalRead(pinNumber) == LOW)) return;  // rien n'a changé
+
+    state = !state;
+    // si enfoncé -> evXon
+    if (state) {
+      if (multi < 100) multi++;
+      Events.push(evCode, evxOn);
+      Events.delayedPushMillis(longDelay, evCode, evxLongOn);  // arme un event BP long On
+      return;
     }
+    // si relaché -> evxOff
+    Events.push(evCode, evxOff);
+    Events.delayedPushMillis(longDelay, evCode, evxLongOff);  // arme un event BP long Off
+
+    return;
   }
+
+  //raz multi sur un relaché long
+  if (Events.code == evCode and Events.ext == evxLongOff) multi = 0;  
 }
 
 #ifndef __AVR_ATtiny85__

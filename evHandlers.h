@@ -59,9 +59,9 @@ enum tevCore : uint8_t {
   evInChar,
   evInString,
   evHARD = 20,  //??
-   //evDth20,
-   //evDs18b20,
-   evBNODES = 50,
+  //evDth20,
+  //evDs18b20,
+  evBNODES = 50,
   // evOta = 50,   // a migrer dans bnOdes tools
   // evWifi,
   // evTagHisto,
@@ -87,78 +87,78 @@ typedef enum {
 
 
 class evHandler {
-  public:
-    //evHandler *next;  // handle suivant
-    evHandler() ;
-    virtual ~evHandler() {};
-    virtual void begin() {};  // called with eventManager::begin
-    virtual void handle() {}; // called
-    virtual byte get() {
-      return evNill;
-    };
-    //    EventManager evManager;
+public:
+  //evHandler *next;  // handle suivant
+  evHandler();
+  virtual ~evHandler(){};
+  virtual void begin(){};   // called with eventManager::begin
+  virtual void handle(){};  // called
+  virtual byte get() {
+    return evNill;
+  };
+  //    EventManager evManager;
 };
 
 // template pour une liste d'event Handler
 template<typename T>
 class evHandlerList {
-  private:
-    // Définition de la structure du nœud
-    struct evHandlerItem {
-      T* evHandler;
-      evHandlerItem* next;  // Pointeur vers le prochain nœud
+private:
+  // Définition de la structure du nœud
+  struct evHandlerItem {
+    T* evHandler;
+    evHandlerItem* next;  // Pointeur vers le prochain nœud
 
-      evHandlerItem(T* evHandler, evHandlerItem* next = nullptr)
-        : evHandler(evHandler), next(next) {}
-    };
+    evHandlerItem(T* evHandler, evHandlerItem* next = nullptr)
+      : evHandler(evHandler), next(next) {}
+  };
 
-    evHandlerItem* head;  // Pointeur vers le premier nœud de la liste
-    evHandlerItem* tail;  // Pointeur vers le dernier nœud de la liste
+  evHandlerItem* head;  // Pointeur vers le premier nœud de la liste
+  evHandlerItem* tail;  // Pointeur vers le dernier nœud de la liste
 
-  public:
-    evHandlerList()
-      : head(nullptr), tail(nullptr) {}
+public:
+  evHandlerList()
+    : head(nullptr), tail(nullptr) {}
 
-    // ~evHandlerList() {
-    //   //clear();
-    // }
+  // ~evHandlerList() {
+  //   //clear();
+  // }
 
-    void addHandler( T* aHandler) {
-      evHandlerItem* aItem= new evHandlerItem(aHandler);
-      if (tail) {
-        tail->next = aItem;
-      } else {
-        head = aItem;
-      }
-      tail = aItem;
-    };
-    void parseBegin() {
-      evHandlerItem* current = head;
-      while (current) {
-        current->evHandler->begin();
-        current = current->next;
-      }
+  void addHandler(T* aHandler) {
+    evHandlerItem* aItem = new evHandlerItem(aHandler);
+    if (tail) {
+      tail->next = aItem;
+    } else {
+      head = aItem;
     }
-    void parseHandle() {
-      evHandlerItem* current = head;
-      while (current) {
-        current->evHandler->handle();
-        current = current->next;
-      }
+    tail = aItem;
+  };
+  void parseBegin() {
+    evHandlerItem* current = head;
+    while (current) {
+      current->evHandler->begin();
+      current = current->next;
     }
-    uint8_t parseGet() {
-      evHandlerItem* current = head;
-      while (current) {
-        if (current->evHandler->get()) return (true);
-        current = current->next;
-      }
-      return(false);
+  }
+  void parseHandle() {
+    evHandlerItem* current = head;
+    while (current) {
+      current->evHandler->handle();
+      current = current->next;
     }
+  }
+  uint8_t parseGet() {
+    evHandlerItem* current = head;
+    while (current) {
+      if (current->evHandler->get()) return (true);
+      current = current->next;
+    }
+    return (false);
+  }
 
 
 
 
-    /*
+  /*
       void clear() {
           Node* current = head;
           while (current) {
@@ -172,29 +172,29 @@ class evHandlerList {
       }
     */
 
-    //friend class evHandlerList<evHandler>;
+  //friend class evHandlerList<evHandler>;
 };
 
 
 class evHandlerOutput : public evHandler {
 
-  public:
-    evHandlerOutput(const uint8_t aEventCode, const uint8_t aPinNumber, const bool stateON = HIGH);
-    virtual void begin() override;
-    virtual void handle() override;
-    bool isOn();
-    void setOn(const bool status = true);
-    void pulse(const uint32_t millisecondes);  // pulse d'allumage simple
+public:
+  evHandlerOutput(const uint8_t aEventCode, const uint8_t aPinNumber, const bool stateON = HIGH);
+  virtual void begin() override;
+  virtual void handle() override;
+  bool isOn();
+  void setOn(const bool status = true);
+  void pulse(const uint32_t millisecondes);  // pulse d'allumage simple
 
 
 
-  private:
-    uint8_t pinNumber;
-    bool stateON;  // = HIGH;
-    bool state;    // = false;
+private:
+  uint8_t pinNumber;
+  bool stateON;  // = HIGH;
+  bool state;    // = false;
 
-  protected:
-    uint8_t evCode;
+protected:
+  uint8_t evCode;
 };
 
 /**********************************************************
@@ -209,23 +209,24 @@ class evHandlerOutput : public evHandler {
 
 
 class evHandlerLed : public evHandlerOutput {
-  public:
-    evHandlerLed(const uint8_t aEventCode, const uint8_t aPinNumber, const bool stateON = HIGH, const uint8_t frequence = 0);
-    //virtual void begin()  override;
-    virtual void handle() override;
-    void setOn(const bool status = true);
-    void setFrequence(const uint8_t frequence, const uint8_t percent = 10);      // frequence de la led
-    void setMillisec(const uint16_t millisecondes, const uint8_t percent = 10);  // frequence de la led
+public:
+  evHandlerLed(const uint8_t aEventCode, const uint8_t aPinNumber, const bool stateON = HIGH, const uint8_t frequence = 0);
+  //virtual void begin()  override;
+  virtual void handle() override;
+  void setOn(const bool status = true);
+  void setFrequence(const uint8_t frequence, const uint8_t percent = 10);      // frequence de la led
+  void setMillisec(const uint16_t millisecondes, const uint8_t percent = 10);  // frequence de la led
 
-  private:
-    uint16_t millisecondes;
-    uint8_t percent;
+private:
+  uint16_t millisecondes;
+  uint8_t percent;
 };
 
 
 /**********************************************************
 
    gestion d'un poussoir sur un port   genere evxOn, evxOff, evxLongOn, evxLongOff
+   geston du click rapide
 
  ***********************************************************/
 
@@ -233,21 +234,23 @@ class evHandlerLed : public evHandlerOutput {
 
 
 class evHandlerButton : public evHandler {
-  public:
-    evHandlerButton(const uint8_t aEventCode, const uint8_t aPinNumber, const uint16_t aLongDelay = 1500);
-    virtual void begin() override;
-    virtual void handle() override;
-    bool isOn() {
-      return state;
-    };
+public:
+  evHandlerButton(const uint8_t aEventCode, const uint8_t aPinNumber, const uint16_t aLongDelay = 1500);
+  virtual void begin() override;
+  virtual void handle() override;
+  bool isOn() {
+    return state;
+  };
 
-  protected:
-    uint8_t evCode;
+  uint8_t multi = 0;
+protected:
+  uint8_t evCode;
 
-  private:
-    uint8_t pinNumber;
-    uint16_t longDelay;
-    bool state = false;
+
+private:
+  uint8_t pinNumber;
+  uint16_t longDelay;
+  bool state = false;
 };
 
 #ifndef __AVR_ATtiny85__
@@ -277,25 +280,25 @@ class evHandlerButton : public evHandler {
 ****************************************************************/
 
 class evHandlerKeypad : public evHandler {
-  public:
-    evHandlerKeypad(const uint8_t aEventCode, const uint8_t aPinNumber = A0, const uint16_t aRepeatDelay = 1000)
-      : evCode(aEventCode), pinNumber(aPinNumber), repeatDelay(aRepeatDelay) {};
-    //virtual void begin() override;
-    virtual void handle() override;
-    uint16_t getKey() {
-      return key;
-    };
+public:
+  evHandlerKeypad(const uint8_t aEventCode, const uint8_t aPinNumber = A0, const uint16_t aRepeatDelay = 1000)
+    : evCode(aEventCode), pinNumber(aPinNumber), repeatDelay(aRepeatDelay){};
+  //virtual void begin() override;
+  virtual void handle() override;
+  uint16_t getKey() {
+    return key;
+  };
 
-  protected:
-    uint8_t evCode;
+protected:
+  uint8_t evCode;
 
-  private:
-    uint8_t pinNumber;  //On esp only A0   (for ESP32 version)
-    uint16_t repeatDelay;
-    uint16_t currentDelay;
-    uint8_t key = 0;
-    uint16_t value = 0;
-    bool pendingValue = false;
+private:
+  uint8_t pinNumber;  //On esp only A0   (for ESP32 version)
+  uint16_t repeatDelay;
+  uint16_t currentDelay;
+  uint8_t key = 0;
+  uint16_t value = 0;
+  bool pendingValue = false;
 };
 
 
@@ -307,20 +310,20 @@ class evHandlerKeypad : public evHandler {
  ***********************************************************/
 
 class evHandlerSerial : public evHandler {
-  public:
-    evHandlerSerial(const uint32_t aSerialSpeed = 115200, const uint8_t inputStringSize = 100);
-    virtual void begin() override;
-    //virtual void handle()  override;
-    virtual byte get() override;
-    void setInputString(const String aStr);
-    String inputString = "";
-    char inputChar = '\0';
-  private:
+public:
+  evHandlerSerial(const uint32_t aSerialSpeed = 115200, const uint8_t inputStringSize = 100);
+  virtual void begin() override;
+  //virtual void handle()  override;
+  virtual byte get() override;
+  void setInputString(const String aStr);
+  String inputString = "";
+  char inputChar = '\0';
+private:
 
-    uint32_t serialSpeed;
-    uint8_t inputStringSizeMax;
-    bool stringComplete = false;
-    bool stringErase = false;
+  uint32_t serialSpeed;
+  uint8_t inputStringSizeMax;
+  bool stringComplete = false;
+  bool stringErase = false;
 };
 
 
@@ -336,13 +339,13 @@ class evHandlerSerial : public evHandler {
 
 
 class evHandlerDebug : public evHandler {
-  public:
-    //evHandlerDebug();
-    virtual void handle() override;
-    uint8_t trackTime = 0;
-  private:
-    uint16_t ev100HzMissed = 0;
-    uint16_t ev10HzMissed = 0;
+public:
+  //evHandlerDebug();
+  virtual void handle() override;
+  uint8_t trackTime = 0;
+private:
+  uint16_t ev100HzMissed = 0;
+  uint16_t ev10HzMissed = 0;
 };
 
 #endif
